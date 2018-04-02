@@ -16,11 +16,22 @@
 package com.example.android.pets.data;
 
 import android.provider.BaseColumns;
+import android.net.Uri;
 
 /**
  * API Contract for the Pets app.
  */
 public final class PetContract {
+
+    /** CONTENT_AUTHORITY is a constant whose value is the same as that from the AndroidManifest */
+    public static final String CONTENT_AUTHORITY = "com.example.android.pets";
+
+    /** BASE_CONTENT_URI which will be shared by every URI associated with PetContract */
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+    /**  PATH_TableName this constants stores the path for each of the tables which will be appended to the base content URI. */
+    public static final String PATH_PETS = "pets";
+
 
     // To prevent someone from accidentally instantiating the contract class,
     // give it an empty constructor.
@@ -31,6 +42,9 @@ public final class PetContract {
      * Each entry in the table represents a single pet.
      */
     public static final class PetEntry implements BaseColumns {
+
+        /** Complete CONTENT_URI */
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PETS);
 
         /** Name of database table for pets */
         public final static String TABLE_NAME = "pets";
@@ -79,6 +93,17 @@ public final class PetContract {
         public static final int GENDER_UNKNOWN = 0;
         public static final int GENDER_MALE = 1;
         public static final int GENDER_FEMALE = 2;
+
+        /**
+         * Returns whether or not the given gender is {@link #GENDER_UNKNOWN}, {@link #GENDER_MALE},
+         * or {@link #GENDER_FEMALE}.
+         */
+        public static boolean isValidGender(int gender) {
+            if (gender == PetEntry.GENDER_UNKNOWN || gender == PetEntry.GENDER_MALE || gender == PetEntry.GENDER_FEMALE) {
+                return true;
+            }
+            return false;
+        }
     }
 
 }

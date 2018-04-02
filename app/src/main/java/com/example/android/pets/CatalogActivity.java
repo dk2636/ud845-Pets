@@ -18,25 +18,25 @@ package com.example.android.pets;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
-import com.example.android.pets.data.PetDbHelper;
+
 
 /**
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
 
-    /** Database helper that will provide us access to the database */
-    private PetDbHelper mDbHelper;
+    public static final String LOG_TAG = CatalogActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +55,7 @@ public class CatalogActivity extends AppCompatActivity {
 
         // To access our database, we instantiate our subclass of SQLiteOpenHelper
         // and pass the context, which is the current activity.
-        mDbHelper = new PetDbHelper(this);
+        // mDbHelper = new PetDbHelper(this);
     }
 
     @Override
@@ -69,8 +69,9 @@ public class CatalogActivity extends AppCompatActivity {
      * the pets database.
      */
     private void displayDatabaseInfo() {
+
         // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        // SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
@@ -80,8 +81,15 @@ public class CatalogActivity extends AppCompatActivity {
                 PetEntry.COLUMN_PET_BREED,
                 PetEntry.COLUMN_PET_GENDER,
                 PetEntry.COLUMN_PET_WEIGHT };
+        // The following example utilize the WHERE statement.
+        // It is only for demo purposes and will not be used in the query's arguments
+        // Define WHERE part of the query
+        //String selection = PetEntry.COLUMN_PET_NAME +"=?";
+        //Specify arguments in placeholder order
+        //String[] selectionArgs = {"1"};
 
         // Perform a query on the pets table
+        /*
         Cursor cursor = db.query(
                 PetEntry.TABLE_NAME,   // The table to query
                 projection,            // The columns to return
@@ -90,6 +98,13 @@ public class CatalogActivity extends AppCompatActivity {
                 null,                  // Don't group the rows
                 null,                  // Don't filter by row groups
                 null);                   // The sort order
+        */
+
+        Cursor cursor = getContentResolver().query( PetEntry.CONTENT_URI,
+                                                    projection, // The columns to return
+                                                    null,       // The columns for the WHERE clause
+                                                    null,       // The values for the WHERE clause
+                                                    null);      // The sort order
 
         TextView displayView = (TextView) findViewById(R.id.text_view_pet);
 
@@ -143,7 +158,7 @@ public class CatalogActivity extends AppCompatActivity {
      */
     private void insertPet() {
         // Gets the database in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        //SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         // Create a ContentValues object where column names are the keys,
         // and Toto's pet attributes are the values.
@@ -160,7 +175,9 @@ public class CatalogActivity extends AppCompatActivity {
         // this is set to "null", then the framework will not insert a row when
         // there are no values).
         // The third argument is the ContentValues object containing the info for Toto.
-        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
+        // long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
+        Uri newRowUri = getContentResolver().insert(PetEntry.CONTENT_URI,values);
+        Log.v(LOG_TAG, "New row with Uri:"+newRowUri);
     }
 
     @Override
